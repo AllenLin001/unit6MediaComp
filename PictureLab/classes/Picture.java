@@ -97,15 +97,16 @@ public class Picture extends SimplePicture
             }
         }
     }
-    
-    public void zeroGreen()
+
+    public void onlyGreen()
     {
         Pixel[][] pixels = this.getPixels2D();
         for (Pixel[] rowArray: pixels)
         {
             for (Pixel pixelObj: rowArray)
             {
-                pixelObj.setGreen(0);
+                pixelObj.setBlue(0);
+                pixelObj.setRed(0);
             }
         }
     }
@@ -130,30 +131,39 @@ public class Picture extends SimplePicture
         } 
     }
 
+    public void mirrorARegion(int startRow, int endRow, int endCol)
+    {
+        Pixel[][] pixels = this.getPixels2D();
+        Pixel leftPixel = null;
+        Pixel rightPixel = null;
+        int width = pixels[0].length;
+        for (int x = startRow; x < endRow; x++)
+        {
+            for (int y = 0; y < endCol; y++)
+            {
+                leftPixel = pixels[width-1-x][y];
+                rightPixel = pixels[x][y];
+
+                rightPixel.setColor( leftPixel.getColor() );
+            }
+        }
+    }
+
     public void mirrorDiagonally()
     {
         Pixel[][] pixels = this.getPixels2D();
-        Pixel upperPixel = null;
-        Pixel lowerPixel = null;
+        Pixel origiPixel = null;
+        Pixel modifiPixel = null;
         int width = pixels[0].length;
         for (int row = 0; row< pixels.length; row++)
         {
             for (int col = 0; col < pixels[0].length; col++)
             {
-                upperPixel = pixels[row][col];
-                lowerPixel = pixels[col][row];
-                upperPixel.setColor(lowerPixel.getColor());
+                origiPixel = pixels[row][col];
+                modifiPixel = pixels[col][row];
+                origiPixel.setColor(modifiPixel.getColor());
             }
         }
-    }
-
-    public BufferedImage rescaleImage( BufferedImage image,int width,int height,int type)
-    {
-        BufferedImage resizedImage = new BufferedImage(width, height, type);
-        Graphics2D g = resizedImage.createGraphics();
-        g.drawImage(image, 0, 0, width, height, null);
-        g.dispose();
-        return resizedImage; 
     }
 
     /** Mirror just part of a picture of a temple */
@@ -216,12 +226,15 @@ public class Picture extends SimplePicture
     {
         Picture butterfly1 = new Picture("C:\\Users\\Shuo\\Documents\\GitHub\\unit6MediaComp\\PictureLab\\images\\butterfly1.jpg");
         this.copy(butterfly1,0,0);
-        Picture butterflyNoGreen = new Picture(butterfly1);
-        butterflyNoGreen.zeroGreen();
-        this.copy(butterflyNoGreen,422,422);
+        Picture butterflyOnlyGreen = new Picture(butterfly1);
+        butterflyOnlyGreen.onlyGreen();
+        this.copy(butterflyOnlyGreen,422,422);
         Picture butterflyDiagonal = new Picture(butterfly1);
         butterflyDiagonal.mirrorDiagonally();
         this.copy(butterflyDiagonal,422,0);
+        Picture butterflyRegionMirror = new Picture(butterfly1);
+        butterflyRegionMirror.mirrorARegion(100,400,350);
+        this.copy(butterflyRegionMirror,0,422);
         this.write("collage.jpg");
     }
 
@@ -258,10 +271,10 @@ public class Picture extends SimplePicture
     {
         Picture butterfly1 = new Picture ("C:\\Users\\Shuo\\Documents\\GitHub\\unit6MediaComp\\PictureLab\\images\\butterfly1.jpg");
         butterfly1.explore();
-        Picture canvas = new Picture (1000,1000);
+        Picture canvas = new Picture (844,844);
         canvas.createCollage(); 
         canvas.explore();
-        
+
     }
 
 } // this } is the end of class Picture, put all new methods before this
